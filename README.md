@@ -1,3 +1,5 @@
+> 实例项目地址：https://github.com/14251104246/spring-batch-demo
+
 ### 介绍
 - Spring Batch是一个轻量级，全面的批处理框架，旨在开发对企业系统日常运营至关重要的强大批处理应用程序。Spring Batch不是一个调度框架。在商业和开源空间中都有许多优秀的企业调度器（例如Quartz，Tivoli，Control-M等）。它旨在与调度程序一起工作，而不是替换调度程序。
 - Spring Batch让程序员开发批处理程序时，可以更加关注于业务逻辑。
