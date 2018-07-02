@@ -15,8 +15,8 @@
     - 大规模并发
     - 失败后手动或自动计划重新启动
     - 顺序处理相关步骤
-    - 部分处理：跳过记录（例如，回滚）
-    - Whole-batch transaction, for cases with a small batch size or existing stored procedures/scripts
+    - 部分处理：跳过某些记录
+
 
 ### 入门使用
 - 批处理示例项目参考了[官方入门教程](https://spring.io/guides/gs/batch-processing/)
