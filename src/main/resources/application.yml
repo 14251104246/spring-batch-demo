@@ -3,7 +3,7 @@
 
 spring:
   application:
-    name: spring-boot-ci-demo
+    name: spring-batch-demo
   profiles:
     active: dev
   jackson:
