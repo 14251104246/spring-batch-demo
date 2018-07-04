@@ -1,0 +1,44 @@
+
+#=================================================================================
+# 是否生成ddl语句
+spring.jpa.generate-ddl: true
+  # 是否打印sql语句
+spring.jpa.show-sql: true
+  # 自动生成ddl，由于指定了具体的ddl，此处设置为none
+spring.jpa.hibernate.ddl-auto: create
+  # 使用H2数据库
+spring.datasource.platform: h2
+  # 指定生成数据库的schema文件位置
+spring.datasource.schema: classpath:schema.sql
+#  # 指定插入数据库语句的脚本位置
+#spring.datasource.data: classpath:data.sql
+
+
+spring.datasource:
+    url: jdbc:h2:mem:h2test;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    username: sa
+    password:
+    driverClassName: org.h2.Driver
+spring.jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    properties:
+      hibernate:
+        show_sql: true
+        use_sql_comments: true
+        format_sql: true
+spring.h2:
+    console:
+      enabled: true
+      path: /console
+      settings:
+        trace: false
+        web-allow-others: false
+
+  #=================================================================================
+
+server:
+  port: 18701
+
+
+
+#=================================================================================

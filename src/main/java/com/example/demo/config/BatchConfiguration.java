@@ -7,7 +7,6 @@ import com.example.demo.pojo.entity.Person;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecutionListener;
 import org.springframework.batch.core.Step;
-import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
@@ -17,23 +16,12 @@ import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.launch.support.SimpleJobLauncher;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.repository.support.JobRepositoryFactoryBean;
-import org.springframework.batch.core.scope.context.ChunkContext;
-import org.springframework.batch.core.step.tasklet.Tasklet;
-import org.springframework.batch.item.ItemReader;
-import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.database.BeanPropertyItemSqlParameterSourceProvider;
 import org.springframework.batch.item.database.JdbcBatchItemWriter;
-
-import org.springframework.batch.item.database.JdbcPagingItemReader;
-import org.springframework.batch.item.database.Order;
-import org.springframework.batch.item.database.support.MySqlPagingQueryProvider;
 import org.springframework.batch.item.file.FlatFileItemReader;
-
 import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
 import org.springframework.batch.item.file.mapping.DefaultLineMapper;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
-import org.springframework.batch.item.file.transform.FixedLengthTokenizer;
-import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.batch.BasicBatchConfigurer;
 import org.springframework.boot.autoconfigure.batch.BatchProperties;
@@ -41,13 +29,8 @@ import org.springframework.boot.autoconfigure.transaction.TransactionManagerCust
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 
 import javax.sql.DataSource;
-import javax.transaction.TransactionManager;
-import java.util.HashMap;
-import java.util.logging.Logger;
 
 @Configuration
 @EnableBatchProcessing
@@ -101,39 +84,6 @@ public class BatchConfiguration extends BasicBatchConfigurer {
         return new SampleJobListener();
     }
 
-    @Bean
-    public Job importUserJob(JobBuilderFactory jobBuilderFactory, Step step1, Step step2) {
-        return jobBuilderFactory.get("importUserJob")
-                .incrementer(new RunIdIncrementer())
-                //校验任务参数
-                .validator(new DefaultJobParametersValidator())
-                //阻止重启JobInstance
-//                .preventRestart()
-                //监听job执行
-                .listener(sampleJobListener())
-                .start(step1)
-                .next(step2)
-                .build();
-    }
-
-    @Bean
-    public Step step1(JdbcBatchItemWriter<Person> writer) {
-        return stepBuilderFactory.get("step1")
-                .<Person, Person> chunk(10)
-                .reader(reader())
-                .processor(processor())
-                .writer(writer)
-                .build();
-    }
-
-    @Bean
-    protected Step step2() {
-        return stepBuilderFactory.get("step2")
-                .tasklet(new Step2())
-                .build();
-    }
-
-
     @Override
     protected JobRepository createJobRepository() throws Exception {
         JobRepositoryFactoryBean factory = new JobRepositoryFactoryBean();
@@ -154,4 +104,50 @@ public class BatchConfiguration extends BasicBatchConfigurer {
         return jobLauncher;
     }
 
+
+
+    @Bean
+    public Job importUserJob(JobBuilderFactory jobBuilderFactory, Step step1, Step step2,Step step3) {
+        return jobBuilderFactory.get("importUserJob")
+                .incrementer(new RunIdIncrementer())
+                //校验任务参数
+                .validator(new DefaultJobParametersValidator())
+                //阻止重启JobInstance
+//                .preventRestart()
+                //监听job执行
+                .listener(sampleJobListener())
+                .start(step1)
+                .next(step2)
+                .next(step3)
+                .build();
+    }
+
+    @Bean
+    public Step step1(JdbcBatchItemWriter<Person> writer) {
+        return stepBuilderFactory.get("step1")
+                .<Person, Person> chunk(2)
+                .reader(reader())
+                .processor(processor())
+                .writer(writer)
+                .build();
+    }
+
+    @Bean
+    protected Step step2() {
+        return stepBuilderFactory.get("step2")
+                .tasklet(new Step2())
+                .allowStartIfComplete(true)
+                .build();
+    }
+
+    @Bean
+    protected Step step3(JdbcBatchItemWriter<Person> writer) {
+        return stepBuilderFactory.get("step3")
+                .startLimit(1)
+                .<Person, Person>chunk(3)
+                .reader(reader())
+                .processor(processor())
+                .writer(writer)
+                .build();
+    }
 }
